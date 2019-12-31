@@ -5,47 +5,47 @@
 #include <unistd.h>         /* syscall()                                    */
 #include <sys/syscall.h>    /* SYS_getiid                                   */
 
-typedef struct nomeThread {
+typedef struct NomeThread {
     char nome[10];
     char id[5];
 } NomeThread;
 
 
-void *exibirNome(void* nome) {
-    char *nomeThread = (char*)nome;
-    printf("Eu sou a thread %s e meu ID retornado por pthread_self() e %lu e o ID retornado por getid() e %ld\n", nomeThread, pthread_self(), syscall(SYS_gettid));
+void *exibir_nome(void* nome) {
+    char *nome_thread = (char*)nome;
+    printf("Eu sou a thread %s e meu ID retornado por pthread_self() e %lu e o ID retornado por getid() e %ld\n", nome_thread, pthread_self(), syscall(SYS_gettid));
     pthread_exit(NULL);
 }
 
-void definirNomeThread(char *nomeThread, int id) {
-    NomeThread novoNome;
+void definir_nome_thread(char *nome_thread, int id) {
+    NomeThread novo_nome;
 
-    strcpy(novoNome.nome, "Thread_");
-    sprintf(novoNome.id, "%d", id);
-    strcat(novoNome.nome, novoNome.id);
-    strcpy(nomeThread, novoNome.nome);   
+    strcpy(novo_nome.nome, "Thread_");
+    sprintf(novo_nome.id, "%d", id);
+    strcat(novo_nome.nome, novo_nome.id);
+    strcpy(nome_thread, novo_nome.nome);   
 }
 
 int main() {
     pthread_t *thread;
-    int N;
+    int n;
     
-    char **vetorNomesThreads; //Matriz de caracteres
+    char **vetor_nomes_threads; //Matriz de caracteres
     
     printf("Informe o numero de threads: ");
-    scanf("%d", &N);
+    scanf("%d", &n);
 
-    thread = (pthread_t*)malloc(sizeof(pthread_t) * N); //Alocando espacos para threads dinamicamente
+    thread = (pthread_t*)malloc(sizeof(pthread_t) * n); //Alocando espacos para threads dinamicamente
 
-    vetorNomesThreads = (char**)malloc(sizeof(char*) * N); //Alocando espacos para os nomes das threads dinamicamente
+    vetor_nomes_threads = (char**)malloc(sizeof(char*) * n); //Alocando espacos para os nomes das threads dinamicamente
 
-    for (int i = 0; i < N; i++) { //Preenchendo vetor de nomes com os nomes das threads
-        vetorNomesThreads[i] = (char*)malloc(sizeof(char) * 10);
-        definirNomeThread(vetorNomesThreads[i], i+1);
+    for (int i = 0; i < n; i++) { //Preenchendo vetor de nomes com os nomes das threads
+        vetor_nomes_threads[i] = (char*)malloc(sizeof(char) * 10);
+        definir_nome_thread(vetor_nomes_threads[i], i+1);
     }
     
-    for (int i = 0; i < N; i++) { //Criando threads
-        int erro = pthread_create(&(thread[i]), NULL, exibirNome, (void*)vetorNomesThreads[i]);
+    for (int i = 0; i < n; i++) { //Criando threads
+        int erro = pthread_create(&(thread[i]), NULL, exibir_nome, (void*)vetor_nomes_threads[i]);
     }
     
     pthread_exit(NULL);
