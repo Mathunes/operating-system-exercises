@@ -11,28 +11,28 @@ int ultimo = MAX;
 
 sem_t s; //Declarando semaforo
 
-void deslocarElemento(int posicao) {
+void deslocar_elemento(int posicao) {
     for (int i = posicao; i < ultimo-1; i++) {
         vetor[i] = vetor[i+1];
     }
 }
 
-void *removerPares() {
+void *remover_pares() {
     for (int i = MAX-1; i >= 0; i--) {
         sem_wait(&s); //Decrementa semaforo e bloqueia thread (se houver)
         if ((vetor[i] % 2) == 0) {
-            deslocarElemento(i);
+            deslocar_elemento(i);
         }
         sem_post(&s); //Incrementa semaforo e acorda thread (se houver)
     }
     pthread_exit(NULL);
 }
 
-void *removerMultiplosDe5() {
+void *remover_multiplos_de_cinco() {
     for (int i = MAX-1; i >= 0; i--) {
         sem_wait(&s); //Decremente semaforo e bloqueia thread
         if ((vetor[i] % 5) == 0) {
-            deslocarElemento(i);
+            deslocar_elemento(i);
         }
         sem_post(&s); //Incrementa semaforo e acorda thread
     }
@@ -40,37 +40,37 @@ void *removerMultiplosDe5() {
 }
 
 //========================================= VETOR DE VERIFICAÇÂO - DADOS REMOVIDOS SEM THREADS =========================================
-int vetorVerificacao[MAX];
+int vetor_verificacao[MAX];
 int ultimo2 = MAX;
 
-void deslocarElementoVerificacao(int posicao) {
+void deslocar_elemento_verificacao(int posicao) {
     for (int i = posicao; i < ultimo2-1; i++) {
-        vetorVerificacao[i] = vetorVerificacao[i+1];
+        vetor_verificacao[i] = vetor_verificacao[i+1];
     }    
 }
 
-void removerElementosVerificacao() {
+void remover_elementos_verificacao() {
     for (int i = MAX-1; i >= 0; i--) {
-        if (((vetorVerificacao[i] % 5) == 0) || ((vetorVerificacao[i] % 2) == 0)) {
-            deslocarElementoVerificacao(i);
+        if (((vetor_verificacao[i] % 5) == 0) || ((vetor_verificacao[i] % 2) == 0)) {
+            deslocar_elemento_verificacao(i);
         }
     }
 }
 //======================================================================================================================================
 
-void preencherVetores() {
+void preencher_vetores() {
     srand(time(NULL));
     int aux;
     for (int i = 0; i < MAX; i++) {
         aux = 1 + rand() % 100;
         vetor[i] = aux;
-        vetorVerificacao[i] = aux;
+        vetor_verificacao[i] = aux;
     }
 }
 
-int compararVetores() {
+int comparar_vetores() {
     for (int i = 0; i < MAX; i++) {
-        if (vetor[i] != vetorVerificacao[i]) {
+        if (vetor[i] != vetor_verificacao[i]) {
             return 0;
         }
     }
@@ -86,19 +86,19 @@ int main() {
 
     sem_init(&s, 0, 1); //Iniciando semaforo com valor 1
 
-    preencherVetores();
+    preencher_vetores();
 
-    removerElementosVerificacao();
+    remover_elementos_verificacao();
 
-    pthread_create(&(thread[0]), &attr, removerPares, NULL);
-    pthread_create(&(thread[1]), &attr, removerMultiplosDe5, NULL);
+    pthread_create(&(thread[0]), &attr, remover_pares, NULL);
+    pthread_create(&(thread[1]), &attr, remover_multiplos_de_cinco, NULL);
 
     pthread_attr_destroy(&attr);
     
     pthread_join(thread[0], NULL);
     pthread_join(thread[1], NULL);
 
-    if (compararVetores()) {
+    if (comparar_vetores()) {
         printf("Iguais\n");
     } else {
         printf("Diferentes\n");
