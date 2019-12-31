@@ -1,0 +1,1 @@
+gcc parte-3.c -o parte-3-exe
