@@ -1,5 +1,5 @@
 # operating-system-exercises
-Resolution of exercises proposed by Professor Raphael Guerra for Operating Systems discipline
+Resolução de exercícios propostos pelo professor Raphael Guerra para a disciplina de Sistemas Operacionais
 
 parte 1
 
