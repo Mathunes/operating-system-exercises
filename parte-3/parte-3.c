@@ -99,7 +99,7 @@ int comparar_vetores() {
 
 int main() {
     //Obtendo identificador do segmento de memoria compartilhada
-    int shm_id = shmget(0, 400000, IPC_CREAT | 0600); //0 é a chave que os processos utilizaram para acessar a memoria compartilhada / tamanho / Direitos ou permissao de acesso do segmento
+    int shm_id = shmget(0, MAX * (sizeof(int)), IPC_CREAT | 0600); //0 é a chave que os processos utilizaram para acessar a memoria compartilhada / tamanho / Direitos ou permissao de acesso do segmento
 
     //Obtendo endereço de memoria compartilhada
     char *shm_adrr = shmat(shm_id, NULL, 0);
