@@ -9,30 +9,30 @@
 #define MAX     100000
 #define SETVAL  16 // Comando utilizado como parametro semclt para indicar a passagem de valor para o semaforo
 
-typedef struct vetor {
+typedef struct Vetor {
     int dados[MAX];
 } Vetor;
 
-Vetor *vetor, vetorComparacao;
+Vetor *vetor, vetor_comparacao;
 struct sembuf sem_op; //especificacao das operacoes a serem realizadas no semaforo
 
-void preencherVetor() {
+void preencher_vetor() {
     srand(time(NULL));
     int aux;
     for (int i = 0; i < MAX; i++) {
         aux = 1 + (rand() % 100);
         vetor[0].dados[i] = aux;
-        vetorComparacao.dados[i] = aux;
+        vetor_comparacao.dados[i] = aux;
     }
 }
 
-void deslocarElementos(int posicao) {
+void deslocar_elementos(int posicao) {
     for (int i = posicao; i < MAX-1; i++) {
         vetor[0].dados[i] = vetor[0].dados[i+1];
     }
 }
 
-void removerMultiplosDeCinco(int sem_set_id) {
+void remover_multiplos_de_cinco(int sem_set_id) {
 
     sem_op.sem_num = 0; //Numero (indice) do semaforo
     sem_op.sem_op = -1; //Operacao a ser executada (-1 subtracao, 1 soma, 0 suspender)
@@ -41,7 +41,7 @@ void removerMultiplosDeCinco(int sem_set_id) {
     
     for (int i = MAX-1; i >= 0; i--) {
         if ((vetor[0].dados[i] % 5) == 0) {
-            deslocarElementos(i);
+            deslocar_elementos(i);
         }
     }
     
@@ -51,7 +51,7 @@ void removerMultiplosDeCinco(int sem_set_id) {
     semop(sem_set_id, &sem_op, 1);
 }
 
-void removerPares(int sem_set_id) {
+void remover_pares(int sem_set_id) {
     
     sem_op.sem_num = 0;
     sem_op.sem_op = -1;
@@ -60,7 +60,7 @@ void removerPares(int sem_set_id) {
 
     for (int i = MAX-1; i >= 0; i--) {
         if ((vetor[0].dados[i] % 2) == 0) {
-            deslocarElementos(i);
+            deslocar_elementos(i);
         }
     }
 
@@ -72,25 +72,25 @@ void removerPares(int sem_set_id) {
 
 //========================================= VETOR DE VERIFICAÇÂO - DADOS REMOVIDOS COM UM PROCESSO =========================================
 
-void deslocarElementos2(int posicao) {
+void deslocar_elementos2(int posicao) {
     for (int i = posicao; i < MAX-1; i++) {
-        vetorComparacao.dados[i] = vetorComparacao.dados[i+1];
+        vetor_comparacao.dados[i] = vetor_comparacao.dados[i+1];
     }
 }
 
-void removerVetorComparacao() {
+void remover_vetor_comparacao() {
     for (int i = MAX-1; i >= 0; i--) {
-        if (((vetorComparacao.dados[i] % 2) == 0) || ((vetorComparacao.dados[i] % 5) == 0)) {
-            deslocarElementos2(i);
+        if (((vetor_comparacao.dados[i] % 2) == 0) || ((vetor_comparacao.dados[i] % 5) == 0)) {
+            deslocar_elementos2(i);
         }
     }
 }
 
 //==========================================================================================================================================
 
-int compararVetores() {
+int comparar_vetores() {
     for (int i = 0; i < MAX; i++) {
-        if (vetor[0].dados[i] != vetorComparacao.dados[i]) {
+        if (vetor[0].dados[i] != vetor_comparacao.dados[i]) {
             return 0;
         }
     }
@@ -113,7 +113,7 @@ int main() {
     //Gravando o vetor na memoria compartilhada
     vetor = (Vetor*)shm_adrr;
 
-    preencherVetor();
+    preencher_vetor();
 
     int pid = fork();
 
@@ -122,16 +122,16 @@ int main() {
             perror("fork");
             exit(1);
         case 0:
-            removerMultiplosDeCinco(sem_set_id);
+            remover_multiplos_de_cinco(sem_set_id);
             exit(0);
         default:
-            removerPares(sem_set_id);
+            remover_pares(sem_set_id);
             wait(0); //Esperando o filho
     }
 
-    removerVetorComparacao();
+    remover_vetor_comparacao();
 
-    if(compararVetores()) {
+    if(comparar_vetores()) {
         printf("Iguais\n");
     } else {
         printf("Diferentes\n");
