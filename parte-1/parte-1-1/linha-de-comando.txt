@@ -1,1 +1,0 @@
-gcc parte-1-1.c -pthread -o parte-1-1-exe
